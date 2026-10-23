@@ -72,6 +72,7 @@ header p{margin:2px 0 0;color:var(--muted);font-size:13px}
 .seg{position:relative;display:inline-flex;background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px;max-width:100%}
 .seg input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
 .seg label{display:flex;align-items:center;min-height:38px;padding:0 14px;border-radius:8px;font-weight:600;font-size:14px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.seg.tight label{padding:0 10px}
 .seg input:checked + label{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.2)}
 .seg input:focus-visible + label{outline:2px solid var(--accent);outline-offset:1px}
 
@@ -140,9 +141,10 @@ textarea{padding:10px 12px;line-height:1.45;resize:vertical;font-size:14px;min-h
         <div class="busy" id="busy" hidden><div class="spin"></div><div id="busyMsg">Working…</div></div>
       </div>
       <div class="viewbar">
-        <div class="seg" role="radiogroup" aria-label="Compare view">
+        <div class="seg tight" role="radiogroup" aria-label="Compare view">
           <input type="radio" name="view" id="v-after" value="after" checked><label for="v-after">Enhanced</label>
           <input type="radio" name="view" id="v-split" value="split"><label for="v-split">Split</label>
+          <input type="radio" name="view" id="v-ab" value="ab" hidden><label for="v-ab" hidden>Gemini | GPT</label>
           <input type="radio" name="view" id="v-before" value="before"><label for="v-before">Original</label>
         </div>
         <span class="meta" id="meta">—</span>
@@ -184,37 +186,75 @@ textarea{padding:10px 12px;line-height:1.45;resize:vertical;font-size:14px;min-h
           <span class="cap">Enhance with</span>
           <div class="seg" role="radiogroup" aria-label="Enhance engine">
             <input type="radio" name="engine" id="e-local" value="local" checked><label for="e-local">This app · free</label>
-            <input type="radio" name="engine" id="e-ai" value="ai"><label for="e-ai">Gemini AI · paid</label>
+            <input type="radio" name="engine" id="e-ai" value="ai"><label for="e-ai">AI · paid</label>
           </div>
         </div>
 
         <div class="stack" id="aiBox" hidden>
-          <p class="warn" id="aiWarn">Optional. Your photo is sent to Google's Gemini API with your own key, and Google bills that key per photo (roughly $0.03 to $0.05; the API has no free tier). AI can subtly change the product, so compare with Original before saving.</p>
           <div class="fld">
-            <label class="cap" for="aiKey">Google AI API key</label>
-            <input class="txt" id="aiKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste your key">
-            <label class="chk" for="aiRemember"><input type="checkbox" id="aiRemember" checked>Remember on this device</label>
+            <span class="cap">AI provider</span>
+            <div class="seg" role="radiogroup" aria-label="AI provider">
+              <input type="radio" name="prov" id="p-gemini" value="gemini" checked><label for="p-gemini">Gemini</label>
+              <input type="radio" name="prov" id="p-openai" value="openai"><label for="p-openai">GPT (OpenAI)</label>
+            </div>
           </div>
-          <div class="fld">
-            <label class="cap" for="aiModel">Model</label>
-            <input class="txt" id="aiModel" list="aiModels" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <datalist id="aiModels"></datalist>
+          <p class="warn" id="aiWarn"></p>
+
+          <div class="stack" id="gBox">
+            <div class="fld">
+              <label class="cap" for="aiKey">Google AI API key</label>
+              <input class="txt" id="aiKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste your key">
+            </div>
+            <div class="fld">
+              <label class="cap" for="aiModel">Model</label>
+              <input class="txt" id="aiModel" list="aiModels" autocomplete="off" autocapitalize="off" spellcheck="false">
+              <datalist id="aiModels"></datalist>
+            </div>
+            <div class="fld">
+              <label class="cap" for="aiRes">AI resolution</label>
+              <select id="aiRes">
+                <option value="">Model default (about 1K)</option>
+                <option value="2K">2K (higher price)</option>
+                <option value="4K">4K (highest price)</option>
+              </select>
+            </div>
           </div>
-          <div class="fld">
-            <label class="cap" for="aiRes">AI resolution</label>
-            <select id="aiRes">
-              <option value="">Model default (about 1K)</option>
-              <option value="2K">2K (higher price)</option>
-              <option value="4K">4K (highest price)</option>
-            </select>
+
+          <div class="stack" id="oBox" hidden>
+            <div class="fld">
+              <label class="cap" for="oaKey">OpenAI API key</label>
+              <input class="txt" id="oaKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste your key (starts with sk-)">
+            </div>
+            <div class="fld">
+              <label class="cap" for="oaModel">Model</label>
+              <input class="txt" id="oaModel" list="oaModels" autocomplete="off" autocapitalize="off" spellcheck="false">
+              <datalist id="oaModels"></datalist>
+            </div>
+            <div class="fld">
+              <label class="cap" for="oaRes">AI resolution</label>
+              <select id="oaRes">
+                <option value="">Default (1536 px)</option>
+                <option value="2048">2048 px (higher price)</option>
+                <option value="max">Max, about 8 MP (highest price, experimental)</option>
+              </select>
+            </div>
+            <div class="fld">
+              <label class="cap" for="oaQuality">Quality</label>
+              <select id="oaQuality">
+                <option value="medium">Medium (about $0.04 to $0.05 per photo)</option>
+                <option value="high" selected>High (about $0.17 to $0.21 per photo)</option>
+              </select>
+            </div>
           </div>
+
+          <label class="chk" for="aiRemember"><input type="checkbox" id="aiRemember" checked>Remember keys on this device</label>
           <div class="acts">
             <button type="button" class="btn" id="aiCheck">Check key</button>
             <button type="button" class="btn ghost" id="aiForget">Remove key</button>
           </div>
           <p class="note" id="aiStatus" role="status"></p>
           <details>
-            <summary>AI prompt</summary>
+            <summary>AI prompt (used by both)</summary>
             <div class="fine">
               <textarea id="aiPrompt" spellcheck="false" aria-label="AI prompt"></textarea>
               <button type="button" class="btn ghost" id="aiPromptReset">Reset prompt</button>
@@ -690,25 +730,39 @@ function drawPreview(){
   if(view.width!==base.w||view.height!==base.h){view.width=base.w;view.height=base.h}
   const ai=state.engine==='ai',res=ai?aiGet(item):null,rl=state.ratio==='orig'?'Original ratio':state.ratio,mode=state.view;
   let label='Enhanced',fixes='';
+  const pn=PNAME[AI.provider]+' enhanced';
+  const divider=sx=>{
+    const r=Math.max(14,base.w*.025),cy=base.h/2;
+    vctx.fillStyle='#fff';vctx.fillRect(sx-1,0,2,base.h);
+    vctx.beginPath();vctx.arc(sx,cy,r,0,7);vctx.fill();
+    vctx.fillStyle='#1a1c20';
+    vctx.beginPath();vctx.moveTo(sx-r*.25,cy-r*.4);vctx.lineTo(sx-r*.25,cy+r*.4);vctx.lineTo(sx-r*.65,cy);vctx.closePath();vctx.fill();
+    vctx.beginPath();vctx.moveTo(sx+r*.25,cy-r*.4);vctx.lineTo(sx+r*.25,cy+r*.4);vctx.lineTo(sx+r*.65,cy);vctx.closePath();vctx.fill();
+  };
+  const sxAt=()=>Math.round(clamp(state.split,0,1)*base.w);
+  vctx.imageSmoothingQuality='high';
   if(mode==='before'){vctx.putImageData(base.img,0,0);label='Original'}
-  else{
+  else if(mode==='ab'&&ai&&aiGet(item,'gemini')&&aiGet(item,'openai')){
+    // left half Gemini, right half GPT, same framing
+    const sx=sxAt();
+    vctx.drawImage(aiGet(item,'openai').c,0,0,base.w,base.h);
+    vctx.save();vctx.beginPath();vctx.rect(0,0,sx,base.h);vctx.clip();
+    vctx.drawImage(aiGet(item,'gemini').c,0,0,base.w,base.h);vctx.restore();
+    divider(sx);label='Gemini | GPT';
+  }else{
     if(ai){
-      if(res){vctx.imageSmoothingQuality='high';vctx.drawImage(res.c,0,0,base.w,base.h);label='AI enhanced'}
-      else{vctx.putImageData(base.img,0,0);label='Original · AI not run yet'}
+      if(res){vctx.drawImage(res.c,0,0,base.w,base.h);label=pn}
+      else{vctx.putImageData(base.img,0,0);label='Original · '+PNAME[AI.provider]+' not run yet'}
     }else{
       const work=new ImageData(new Uint8ClampedArray(base.img.data),base.w,base.h);
       fixes=describe(enhance(work,base.w,base.h,PREV_L,base.a,base.u),upFactor(item,base.g));
       vctx.putImageData(work,0,0);
     }
-    if(mode==='split'){
-      const sx=Math.round(clamp(state.split,0,1)*base.w),r=Math.max(14,base.w*.025),cy=base.h/2;
+    if(mode==='split'||mode==='ab'){
+      const sx=sxAt();
       if(sx>0)vctx.putImageData(base.img,0,0,0,0,sx,base.h);   // left side shows the original
-      vctx.fillStyle='#fff';vctx.fillRect(sx-1,0,2,base.h);
-      vctx.beginPath();vctx.arc(sx,cy,r,0,7);vctx.fill();
-      vctx.fillStyle='#1a1c20';
-      vctx.beginPath();vctx.moveTo(sx-r*.25,cy-r*.4);vctx.lineTo(sx-r*.25,cy+r*.4);vctx.lineTo(sx-r*.65,cy);vctx.closePath();vctx.fill();
-      vctx.beginPath();vctx.moveTo(sx+r*.25,cy-r*.4);vctx.lineTo(sx+r*.25,cy+r*.4);vctx.lineTo(sx+r*.65,cy);vctx.closePath();vctx.fill();
-      label='Original | '+(ai?'AI':'Enhanced');
+      divider(sx);
+      label='Original | '+(ai?PNAME[AI.provider]:'Enhanced');
     }
   }
   $('#tag').textContent=label;
@@ -721,7 +775,7 @@ function drawPreview(){
   }
   updateBar();
   const can=canDrag(base.g);
-  stage.classList.toggle('drag',can||mode==='split');
+  stage.classList.toggle('drag',can||mode==='split'||mode==='ab');
   $('#fitNote').textContent=state.fit==='crop'
     ?(can?'Drag the preview to choose what stays in the frame.':'This photo already matches the chosen ratio.')
     :'Leftover space is filled with a blurred copy of the photo. The product is never stretched.';
@@ -734,7 +788,7 @@ function splitFrom(e){const rect=view.getBoundingClientRect();state.split=clamp(
 stage.addEventListener('pointerdown',e=>{
   const item=cur();if(!item||!src||!stage.classList.contains('drag'))return;
   try{stage.setPointerCapture(e.pointerId)}catch(_){}
-  if(state.view==='split'){drag={split:true};splitFrom(e);return}
+  if(state.view==='split'||state.view==='ab'){drag={split:true};splitFrom(e);return}
   drag={x:e.clientX,y:e.clientY,ox:item.offX,oy:item.offY};
   stage.classList.add('grabbing');
 });
@@ -930,11 +984,11 @@ $('#save').addEventListener('click',()=>{
   else runSave([it]);
 });
 $('#alt').addEventListener('click',()=>{
-  if(state.engine==='ai'){const it=cur();if(it)runAI(it)}
+  if(state.engine==='ai'){const it=cur();if(it)altAI(it)}
   else runSave(state.items.slice());
 });
 
-/* ---------- optional Gemini AI mode ---------- */
+/* ---------- optional AI modes: Gemini (Google) and GPT (OpenAI) ---------- */
 const DEFAULT_PROMPT=[
   'Enhance this uploaded photo to the highest possible professional photographic quality.',
   '',
@@ -953,70 +1007,130 @@ const DEFAULT_PROMPT=[
   'FINAL GOAL: The same original photo and the same exact product, but with significantly better photographic quality. Photo enhancement first, everything else second.'
 ].join('\n');
 const AI_BASE='https://generativelanguage.googleapis.com/v1beta';
+const OA_BASE='https://api.openai.com/v1';
 const AI_RATIOS=['1:1','3:2','2:3','3:4','4:3','4:5','5:4','9:16','16:9','21:9'];
-const AI={key:'',model:'gemini-nano-banana-2.1',res:'',prompt:DEFAULT_PROMPT,methods:{},results:new Map(),busy:false};
+const PNAME={gemini:'Gemini',openai:'GPT'};
+const AI={
+  provider:'gemini',
+  g:{key:'',model:'gemini-nano-banana-2.1',res:'',methods:{}},
+  o:{key:'',model:'gpt-image-2.5-sunburst',res:'',quality:'high'},
+  prompt:DEFAULT_PROMPT,results:new Map(),busy:false
+};
+const WARN={
+  gemini:'Optional. Your photo is sent to Google\'s Gemini API with your own key, and Google bills that key per photo (roughly $0.03 to $0.05; the API has no free tier). AI can subtly change the product, so compare with Original before saving.',
+  openai:'Optional. Your photo is sent to OpenAI with your own API key. OpenAI bills a separate prepaid balance (a ChatGPT subscription does not cover it): roughly $0.04 to $0.05 per photo at medium quality and $0.17 to $0.21 at high, more at larger sizes. OpenAI may ask you to verify your organization first. AI can subtly change the product, so compare with Original before saving.'
+};
 const store={
   get(k){try{return localStorage.getItem('ppe.'+k)}catch(_){return null}},
   set(k,v){try{localStorage.setItem('ppe.'+k,v)}catch(_){}},
   del(k){try{localStorage.removeItem('ppe.'+k)}catch(_){}}
 };
-function addModelOption(n){
-  const dl=$('#aiModels');
+const cfg=()=>AI.provider==='openai'?AI.o:AI.g;
+function addOption(listId,n){
+  const dl=$('#'+listId);
   if(![...dl.options].some(o=>o.value===n)){const o=document.createElement('option');o.value=n;dl.appendChild(o)}
 }
-['gemini-nano-banana-2.1','gemini-3.1-flash-image','gemini-3.1-flash-lite-image','gemini-3-pro-image'].forEach(addModelOption);
+['gemini-nano-banana-2.1','gemini-3.1-flash-image','gemini-3.1-flash-lite-image','gemini-3-pro-image'].forEach(n=>addOption('aiModels',n));
+['gpt-image-2.5-sunburst','gpt-image-2.5-flare','gpt-image-2'].forEach(n=>addOption('oaModels',n));
 (function restore(){
-  const k=store.get('key');if(k){AI.key=k;$('#aiKey').value=k}
+  const k=store.get('key');if(k){AI.g.key=k;$('#aiKey').value=k}
+  const ok=store.get('okey');if(ok){AI.o.key=ok;$('#oaKey').value=ok}
   if(store.get('remember')==='0')$('#aiRemember').checked=false;
-  const m=store.get('model');if(m)AI.model=m;
-  const r=store.get('res');if(r!==null)AI.res=r;
+  const m=store.get('model');if(m)AI.g.model=m;
+  const om=store.get('omodel');if(om)AI.o.model=om;
+  const r=store.get('res');if(r!==null)AI.g.res=r;
+  const or=store.get('ores');if(or!==null)AI.o.res=or;
+  const oq=store.get('oquality');if(oq)AI.o.quality=oq;
   const p=store.get('prompt');if(p)AI.prompt=p;
-  $('#aiModel').value=AI.model;$('#aiRes').value=AI.res;$('#aiPrompt').value=AI.prompt;
+  if(store.get('prov')==='openai')AI.provider='openai';
+  $('#aiModel').value=AI.g.model;$('#aiRes').value=AI.g.res;
+  $('#oaModel').value=AI.o.model;$('#oaRes').value=AI.o.res;$('#oaQuality').value=AI.o.quality;
+  $('#aiPrompt').value=AI.prompt;
 })();
-function persistKey(){
-  if($('#aiRemember').checked&&AI.key)store.set('key',AI.key);else store.del('key');
-  store.set('remember',$('#aiRemember').checked?'1':'0');
+function persistKeys(){
+  const keep=$('#aiRemember').checked;
+  if(keep&&AI.g.key)store.set('key',AI.g.key);else store.del('key');
+  if(keep&&AI.o.key)store.set('okey',AI.o.key);else store.del('okey');
+  store.set('remember',keep?'1':'0');
 }
-$('#aiKey').addEventListener('input',e=>{AI.key=e.target.value.trim();persistKey()});
-$('#aiRemember').addEventListener('change',persistKey);
-$('#aiModel').addEventListener('input',e=>{AI.model=e.target.value.trim().replace(/^models\//,'');store.set('model',AI.model)});
-$('#aiRes').addEventListener('change',e=>{AI.res=e.target.value;store.set('res',AI.res)});
+$('#aiKey').addEventListener('input',e=>{AI.g.key=e.target.value.trim();persistKeys()});
+$('#oaKey').addEventListener('input',e=>{AI.o.key=e.target.value.trim();persistKeys()});
+$('#aiRemember').addEventListener('change',persistKeys);
+$('#aiModel').addEventListener('input',e=>{AI.g.model=e.target.value.trim().replace(/^models\//,'');store.set('model',AI.g.model)});
+$('#oaModel').addEventListener('input',e=>{AI.o.model=e.target.value.trim();store.set('omodel',AI.o.model)});
+$('#aiRes').addEventListener('change',e=>{AI.g.res=e.target.value;store.set('res',AI.g.res)});
+$('#oaRes').addEventListener('change',e=>{AI.o.res=e.target.value;store.set('ores',AI.o.res)});
+$('#oaQuality').addEventListener('change',e=>{AI.o.quality=e.target.value;store.set('oquality',AI.o.quality)});
 $('#aiPrompt').addEventListener('input',e=>{
   AI.prompt=e.target.value;
   if(AI.prompt===DEFAULT_PROMPT)store.del('prompt');else store.set('prompt',AI.prompt);
 });
 $('#aiPromptReset').addEventListener('click',()=>{AI.prompt=DEFAULT_PROMPT;$('#aiPrompt').value=DEFAULT_PROMPT;store.del('prompt');toast('Prompt reset.')});
-$('#aiForget').addEventListener('click',()=>{AI.key='';$('#aiKey').value='';store.del('key');$('#aiStatus').textContent='Key removed from this device.'});
+$('#aiForget').addEventListener('click',()=>{
+  if(AI.provider==='openai'){AI.o.key='';$('#oaKey').value='';store.del('okey')}
+  else{AI.g.key='';$('#aiKey').value='';store.del('key')}
+  $('#aiStatus').textContent='Key removed from this device.';
+});
 $('#aiCheck').addEventListener('click',checkKey);
 document.querySelectorAll('input[name=engine]').forEach(r=>r.addEventListener('change',()=>setEngine(r.value)));
+document.querySelectorAll('input[name=prov]').forEach(r=>r.addEventListener('change',()=>setProvider(r.value)));
 
+function setProvider(v){
+  AI.provider=v;store.set('prov',v);
+  document.querySelector('input[name=prov][value="'+v+'"]').checked=true;
+  $('#gBox').hidden=v!=='gemini';
+  $('#oBox').hidden=v!=='openai';
+  $('#aiWarn').textContent=WARN[v];
+  $('#aiStatus').textContent=blockedNote();
+  schedule();updateBar();
+}
+function blockedNote(){
+  return state.engine==='ai'&&window.claude?'Inside claude.ai this page cannot reach Google or OpenAI. Open the installed or hosted version of the app to use AI.':'';
+}
 function setEngine(v){
   state.engine=v;
   $('#aiBox').hidden=v!=='ai';
   $('#localBox').hidden=v==='ai';
-  if(v==='ai'&&window.claude)$('#aiStatus').textContent='Inside claude.ai this page cannot reach Google. Open the installed or hosted version of the app to use AI.';
+  $('#aiStatus').textContent=blockedNote();
   schedule();updateBar();
 }
-function aiKeyOf(item){return[item.id,state.ratio,state.fit,item.offX.toFixed(3),item.offY.toFixed(3)].join('|')}
-function aiGet(item){return AI.results.get(aiKeyOf(item))}
+function aiKeyOf(item,prov){return[item.id,state.ratio,state.fit,item.offX.toFixed(3),item.offY.toFixed(3),prov||AI.provider].join('|')}
+function aiGet(item,prov){return AI.results.get(aiKeyOf(item,prov))}
+// the Gemini | GPT comparison appears once both providers have a result for this photo and framing
+function syncAB(){
+  const it=cur(),both=!!(state.engine==='ai'&&it&&aiGet(it,'gemini')&&aiGet(it,'openai'));
+  $('#v-ab').hidden=!both;$('label[for=v-ab]').hidden=!both;
+  if(!both&&state.view==='ab'){state.view='after';$('#v-after').checked=true}
+}
 function updateBar(){
   const save=$('#save'),alt=$('#alt'),n=state.items.length,it=cur();
   $('#inspect').hidden=state.engine==='ai';
+  syncAB();
   if(state.engine==='ai'){
-    const has=!!(it&&aiGet(it));
-    save.textContent=has?'Save AI result':'Enhance with AI';
-    alt.hidden=!has;alt.textContent='Run again';
+    const me=AI.provider,other=me==='gemini'?'openai':'gemini';
+    const has=!!(it&&aiGet(it,me)),hasOther=!!(it&&aiGet(it,other));
+    save.textContent=has?'Save '+PNAME[me]+' result':'Enhance with '+PNAME[me];
+    alt.hidden=!has;
+    alt.textContent=hasOther?'Run again':'Try '+PNAME[other];
   }else{
     save.textContent='Save enhanced photo';
     alt.hidden=n<2;alt.textContent='Save all ('+n+')';
   }
 }
+// after one provider has a result, the second button runs the other provider on the same photo
+function altAI(item){
+  const me=AI.provider,other=me==='gemini'?'openai':'gemini';
+  if(aiGet(item,me)&&!aiGet(item,other))setProvider(other);
+  runAI(item);
+}
 
+/* ----- Gemini ----- */
 async function geminiFetch(path,body,signal){
+  const key=AI.g.key;
   const send=viaQuery=>{
-    const url=AI_BASE+path+(viaQuery?(path.indexOf('?')<0?'?':'&')+'key='+encodeURIComponent(AI.key):'');
+    const url=AI_BASE+path+(viaQuery?(path.indexOf('?')<0?'?':'&')+'key='+encodeURIComponent(key):'');
     const headers={};
-    if(!viaQuery)headers['x-goog-api-key']=AI.key;
+    if(!viaQuery)headers['x-goog-api-key']=key;
     if(body)headers['Content-Type']='application/json';
     return fetch(url,{method:body?'POST':'GET',headers,body:body?JSON.stringify(body):undefined,signal});
   };
@@ -1035,21 +1149,21 @@ function findImage(o){
   return null;
 }
 async function viaGenerate(b64,ratio,prompt,signal){
-  const cfg={aspectRatio:ratio};if(AI.res)cfg.imageSize=AI.res;
-  const j=await geminiFetch('/models/'+encodeURIComponent(AI.model)+':generateContent',{
+  const c=AI.g,ic={aspectRatio:ratio};if(c.res)ic.imageSize=c.res;
+  const j=await geminiFetch('/models/'+encodeURIComponent(c.model)+':generateContent',{
     contents:[{role:'user',parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:b64}}]}],
-    generationConfig:{responseModalities:['TEXT','IMAGE'],imageConfig:cfg}
+    generationConfig:{responseModalities:['TEXT','IMAGE'],imageConfig:ic}
   },signal);
-  const parts=[].concat(...(j.candidates||[]).map(c=>(c.content&&c.content.parts)||[]));
+  const parts=[].concat(...(j.candidates||[]).map(x=>(x.content&&x.content.parts)||[]));
   for(const p of parts){const d=p.inlineData||p.inline_data;if(d&&d.data)return{mime:d.mimeType||d.mime_type||'image/png',data:d.data}}
   const why=(j.promptFeedback&&j.promptFeedback.blockReason)||(j.candidates&&j.candidates[0]&&j.candidates[0].finishReason)||'';
   const txt=parts.map(p=>p.text).filter(Boolean).join(' ').slice(0,140);
   throw new Error('Gemini returned no image'+(why&&why!=='STOP'?' ('+why+')':'')+(txt?': '+txt:'.'));
 }
 async function viaInteractions(b64,ratio,prompt,signal){
-  const fmt={type:'image',aspect_ratio:ratio};if(AI.res)fmt.image_size=AI.res;
+  const c=AI.g,fmt={type:'image',aspect_ratio:ratio};if(c.res)fmt.image_size=c.res;
   const j=await geminiFetch('/interactions',{
-    model:AI.model,
+    model:c.model,
     input:[{type:'text',text:prompt},{type:'image',mime_type:'image/jpeg',data:b64}],
     response_format:fmt
   },signal);
@@ -1058,7 +1172,7 @@ async function viaInteractions(b64,ratio,prompt,signal){
   throw new Error('Gemini returned no image.');
 }
 async function callGemini(b64,ratio,prompt,signal){
-  const m=AI.methods[AI.model];
+  const m=AI.g.methods[AI.g.model];
   if(m&&m.indexOf('generateContent')<0)return viaInteractions(b64,ratio,prompt,signal);
   try{return await viaGenerate(b64,ratio,prompt,signal)}
   catch(e){
@@ -1068,36 +1182,115 @@ async function callGemini(b64,ratio,prompt,signal){
     throw e;
   }
 }
-function aiErrorText(e){
+
+/* ----- OpenAI (GPT image models) ----- */
+// size for the edits endpoint: multiples of 16, ratio within 1:3 to 3:1, at most 8,294,400 pixels and 3840 per edge
+function openaiSize(R,res){
+  const r16=v=>Math.max(16,Math.floor(v/16)*16);
+  let w,h;
+  if(res==='max'){
+    w=Math.min(Math.sqrt(8294400*R),3840);h=w/R;
+    if(h>3840){h=3840;w=h*R}
+  }else{
+    const L=res==='2048'?2048:1536;
+    if(R>=1){w=L;h=L/R}else{h=L;w=L*R}
+  }
+  w=r16(w);h=r16(h);
+  while(w*h>8294400){w-=16;h=r16(w/R)}
+  return w+'x'+h;
+}
+async function openaiFetch(path,opt,signal){
+  const r=await fetch(OA_BASE+path,Object.assign({headers:{Authorization:'Bearer '+AI.o.key},signal},opt));
+  let j=null;try{j=await r.json()}catch(_){}
+  if(!r.ok){
+    const e=new Error((j&&j.error&&j.error.message)||('HTTP '+r.status));
+    e.status=r.status;e.code=j&&j.error&&j.error.code;throw e;
+  }
+  return j;
+}
+async function callOpenAI(blob,R,ratioLabel,signal){
+  const c=AI.o,build=withOpts=>{
+    const fd=new FormData();
+    fd.append('model',c.model);
+    fd.append('image',blob,'photo.jpg');
+    fd.append('prompt',promptFor(ratioLabel));
+    fd.append('size',openaiSize(R,c.res));
+    fd.append('quality',c.quality||'high');
+    if(withOpts){fd.append('output_format','jpeg');fd.append('output_compression','95')}
+    return fd;
+  };
+  let j;
+  try{j=await openaiFetch('/images/edits',{method:'POST',body:build(true)},signal)}
+  catch(e){
+    // if the model does not accept the optional output settings, ask again without them
+    if(e.status===400&&/output_(format|compression)|unknown parameter|unsupported/i.test(e.message))
+      j=await openaiFetch('/images/edits',{method:'POST',body:build(false)},signal);
+    else throw e;
+  }
+  const d=j&&j.data&&j.data[0];
+  if(d&&d.b64_json){
+    const head=d.b64_json.slice(0,8);
+    return{mime:head.indexOf('iVBOR')===0?'image/png':'image/jpeg',data:d.b64_json};
+  }
+  throw new Error('OpenAI returned no image.');
+}
+
+function aiErrorText(e,prov){
+  prov=prov||AI.provider;
+  const who=prov==='openai'?'OpenAI':'Google';
   if(!e)return 'Something went wrong.';
-  if(e.name==='AbortError')return 'Gemini took too long. Try again.';
+  if(e.name==='AbortError')return PNAME[prov]+' took too long. Try again.';
   if(e instanceof TypeError)return window.claude
-    ?'Inside claude.ai this page cannot reach Google. Open the installed or hosted version of the app for AI mode.'
-    :'Could not reach Google. Check your connection and try again.';
+    ?'Inside claude.ai this page cannot reach '+who+'. Open the installed or hosted version of the app for AI mode.'
+    :'Could not reach '+who+'. Check your connection and try again.';
   const m=String(e.message||''),st=e.status;
-  if(st===400&&/api key/i.test(m))return 'Google did not accept that API key. Check it and try again.';
-  if(st===401||st===403)return 'The key was rejected or has no access to this model. Check billing and the model name.';
-  if(st===404)return 'Model not found. Tap Check key to see which models your key can use.';
-  if(st===429)return 'Quota or rate limit reached. Wait a moment, or check billing for this key.';
+  if(prov==='openai'){
+    if(st===401)return 'OpenAI did not accept that API key. Check it and try again.';
+    if(/verif/i.test(m))return 'OpenAI asks you to verify your organization before using this model. Finish that in the OpenAI developer console, or try another model.';
+    if(st===403)return 'This key has no access to that model. Tap Check key to see which models it can use.';
+    if(st===404)return 'Model not found. Tap Check key to see which models your key can use.';
+    if(st===429)return /quota|billing|credit/i.test(m)?'This OpenAI account has no credit left. Add prepaid credit in the OpenAI billing page.':'Rate limit reached. Wait a moment and try again.';
+    if(/safety|moderation|content policy/i.test(m))return 'OpenAI declined this photo (its safety system). Try another photo or prompt.';
+  }else{
+    if(st===400&&/api key/i.test(m))return 'Google did not accept that API key. Check it and try again.';
+    if(st===401||st===403)return 'The key was rejected or has no access to this model. Check billing and the model name.';
+    if(st===404)return 'Model not found. Tap Check key to see which models your key can use.';
+    if(st===429)return 'Quota or rate limit reached. Wait a moment, or check billing for this key.';
+  }
   return m.length>160?m.slice(0,157)+'…':m;
 }
 async function checkKey(){
-  if(!AI.key){toast('Enter your Google AI API key first.');$('#aiKey').focus();return}
+  const prov=AI.provider,c=cfg();
+  if(!c.key){toast('Enter your '+(prov==='openai'?'OpenAI':'Google AI')+' API key first.');$(prov==='openai'?'#oaKey':'#aiKey').focus();return}
   const st=$('#aiStatus'),btn=$('#aiCheck');st.textContent='Checking…';btn.disabled=true;
   try{
-    const j=await geminiFetch('/models?pageSize=200');
-    const list=(j.models||[]).map(m=>({name:String(m.name||'').replace(/^models\//,''),methods:m.supportedGenerationMethods||[]}))
-      .filter(m=>/image|banana/i.test(m.name)&&!/imagen/i.test(m.name));
-    list.forEach(m=>{AI.methods[m.name]=m.methods;addModelOption(m.name)});
-    if(list.length){
-      const known=list.some(m=>m.name===AI.model);
-      if(!known){
-        AI.model=(list.find(m=>/banana/i.test(m.name))||list[0]).name;
-        $('#aiModel').value=AI.model;store.set('model',AI.model);
-      }
-      st.textContent='Key works. Image models: '+list.map(m=>m.name).join(', ')+(known?'.':'. Model set to '+AI.model+'.');
-    }else st.textContent='Key works, but no image models were listed. You can still type a model name.';
-  }catch(e){st.textContent=aiErrorText(e)}
+    if(prov==='openai'){
+      const j=await openaiFetch('/models',{method:'GET'});
+      const list=(j.data||[]).map(m=>m.id).filter(id=>/gpt-image|chatgpt-image/i.test(id)).sort();
+      list.forEach(id=>addOption('oaModels',id));
+      if(list.length){
+        const known=list.indexOf(c.model)>=0;
+        if(!known){
+          c.model=list.find(id=>/sunburst/i.test(id))||list.find(id=>/gpt-image-2/i.test(id))||list[0];
+          $('#oaModel').value=c.model;store.set('omodel',c.model);
+        }
+        st.textContent='Key works. Image models: '+list.join(', ')+(known?'.':'. Model set to '+c.model+'.');
+      }else st.textContent='Key works, but no GPT image models are available to this account. OpenAI may require organization verification first.';
+    }else{
+      const j=await geminiFetch('/models?pageSize=200');
+      const list=(j.models||[]).map(m=>({name:String(m.name||'').replace(/^models\//,''),methods:m.supportedGenerationMethods||[]}))
+        .filter(m=>/image|banana/i.test(m.name)&&!/imagen/i.test(m.name));
+      list.forEach(m=>{c.methods[m.name]=m.methods;addOption('aiModels',m.name)});
+      if(list.length){
+        const known=list.some(m=>m.name===c.model);
+        if(!known){
+          c.model=(list.find(m=>/banana/i.test(m.name))||list[0]).name;
+          $('#aiModel').value=c.model;store.set('model',c.model);
+        }
+        st.textContent='Key works. Image models: '+list.map(m=>m.name).join(', ')+(known?'.':'. Model set to '+c.model+'.');
+      }else st.textContent='Key works, but no image models were listed. You can still type a model name.';
+    }
+  }catch(e){st.textContent=aiErrorText(e,prov)}
   finally{btn.disabled=false}
 }
 function nearestRatio(R){
@@ -1119,23 +1312,26 @@ function cropToRatio(img,w,h,R){
 }
 async function runAI(item){
   if(AI.busy)return;
-  if(!AI.key){toast('Enter your Google AI API key first.');$('#aiKey').focus();return}
-  if(!AI.model){toast('Enter a model name.');$('#aiModel').focus();return}
+  const prov=AI.provider,c=cfg();
+  if(!c.key){toast('Enter your '+(prov==='openai'?'OpenAI':'Google AI')+' API key first.');$(prov==='openai'?'#oaKey':'#aiKey').focus();return}
+  if(!c.model){toast('Enter a model name.');$(prov==='openai'?'#oaModel':'#aiModel').focus();return}
   AI.busy=true;
   const btns=[$('#save'),$('#alt')];btns.forEach(b=>b.disabled=true);
-  const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),150000);
+  const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),prov==='openai'?270000:150000);
   try{
-    setBusy('Asking Gemini…\nThis can take 10 to 60 seconds.');await nextFrame();
-    const key=aiKeyOf(item),b=buildBase(item,src,1536,true),R=b.g.R,ratio=nearestRatio(R);
-    const b64=await toB64(await toBlob(b.c,'image/jpeg',.92));
-    const out=await callGemini(b64,ratio,promptFor(ratio),ac.signal);
+    setBusy('Asking '+PNAME[prov]+'…\nThis can take 10 to 90 seconds.');await nextFrame();
+    const key=aiKeyOf(item,prov),b=buildBase(item,src,1536,true),R=b.g.R,ratio=nearestRatio(R);
+    const blob=await toBlob(b.c,'image/jpeg',.92);
+    let out;
+    if(prov==='openai')out=await callOpenAI(blob,R,state.ratio==='orig'?ratio:state.ratio,ac.signal);
+    else out=await callGemini(await toB64(blob),ratio,promptFor(ratio),ac.signal);
     const img=new Image();img.src='data:'+out.mime+';base64,'+out.data;await img.decode();
     AI.results.set(key,{c:cropToRatio(img,img.naturalWidth,img.naturalHeight,R)});
-    while(AI.results.size>8)AI.results.delete(AI.results.keys().next().value);
+    while(AI.results.size>12)AI.results.delete(AI.results.keys().next().value);
     state.view='after';$('#v-after').checked=true;
     renderPreview();
     toast('Done. Compare with Original before saving.');
-  }catch(e){toast(aiErrorText(e),6000)}
+  }catch(e){toast(aiErrorText(e,prov),6000)}
   finally{clearTimeout(timer);AI.busy=false;setBusy('');btns.forEach(b=>b.disabled=false);updateBar()}
 }
 async function saveAI(item){
@@ -1153,8 +1349,9 @@ async function saveAI(item){
   if(!blob){toast('Could not create the file.');return}
   const base=(item.sample?'sample':item.name.replace(/\.[^.]+$/,'')).replace(/[^\w\-]+/g,'_').replace(/^_+|_+$/g,'')||'photo';
   const tag=state.ratio==='orig'?'orig':state.ratio.replace(':','x');
-  openSheet([{blob,name:base+'_ai_enhanced_'+tag+'.jpg',w:c.width,h:c.height}]);
+  openSheet([{blob,name:base+'_'+AI.provider+'_enhanced_'+tag+'.jpg',w:c.width,h:c.height}]);
 }
+setProvider(AI.provider);
 
 /* ---------- detail check: the same spot at 100%, standard resize versus this app ---------- */
 const zoomSheet=$('#zoomSheet');
