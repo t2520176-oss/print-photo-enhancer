@@ -1249,13 +1249,13 @@ function aiErrorText(e,prov){
     if(/verif/i.test(m))return 'OpenAI asks you to verify your organization before using this model. Finish that in the OpenAI developer console, or try another model.';
     if(st===403)return 'This key has no access to that model. Tap Check key to see which models it can use.';
     if(st===404)return 'Model not found. Tap Check key to see which models your key can use.';
-    if(st===429)return /quota|billing|credit/i.test(m)?'This OpenAI account has no credit left. Add prepaid credit in the OpenAI billing page.':'Rate limit reached. Wait a moment and try again.';
+    if(st===429)return (/quota|billing|credit/i.test(m)?'This OpenAI account has no credit left. Add prepaid credit in the OpenAI billing page.':'Rate limit reached. Wait a moment and try again.')+' OpenAI says: '+(m.length>140?m.slice(0,137)+'…':m);
     if(/safety|moderation|content policy/i.test(m))return 'OpenAI declined this photo (its safety system). Try another photo or prompt.';
   }else{
     if(st===400&&/api key/i.test(m))return 'Google did not accept that API key. Check it and try again.';
     if(st===401||st===403)return 'The key was rejected or has no access to this model. Check billing and the model name.';
     if(st===404)return 'Model not found. Tap Check key to see which models your key can use.';
-    if(st===429)return 'Quota or rate limit reached. Wait a moment, or check billing for this key.';
+    if(st===429)return 'Quota or rate limit reached. Image models need billing turned on for the key\'s Google project. Google says: '+(m.length>140?m.slice(0,137)+'…':m);
   }
   return m.length>160?m.slice(0,157)+'…':m;
 }
